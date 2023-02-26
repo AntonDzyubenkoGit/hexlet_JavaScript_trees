@@ -1,0 +1,23 @@
+{
+  "name": "hexlet_javascript_trees",
+  "version": "1.0.0",
+  "description": "Мои решения задач для курса \"JS: Деревья\"",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AntonDzyubenkoGit/hexlet_JavaScript_trees.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AntonDzyubenkoGit/hexlet_JavaScript_trees/issues"
+  },
+  "homepage": "https://github.com/AntonDzyubenkoGit/hexlet_JavaScript_trees#readme",
+  "dependencies": {
+    "@hexlet/immutable-fs-trees": "^0.7.1"
+  }
+}
