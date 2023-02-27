@@ -1,37 +1,24 @@
 import { mkfile, mkdir, getChildren, getMeta, getName, isFile, isDirectory } from "@hexlet/immutable-fs-trees";
 import _ from "lodash";
 
-// Функция compressImages(), которая принимает на вход директорию, находит внутри нее картинки и "сжимает" их в два раза
+// Функция downcaseFileNames (), которая принимает на вход директорию (объект-дерево), приводит имена всех файлов в этой и во всех вложенных директориях к нижнему регистру.
 
-const compressImages = (directoty) => {
-  const children = getChildren(directoty);
-  const newChildren = children.map((child) => {
-    const newMeta = _.cloneDeep(getMeta(child));
-    if (isDirectory(child)) {
-      return mkdir(getName(child), newMeta);
-    }
-    if (isFile(child) && _.endsWith(getName(child), ".jpg")) {
-      newMeta.size = getMeta(child).size / 2;
-    }
-    return mkfile(getName(child), newMeta);
-  });
+const tree = mkdir("/", [mkdir("eTc", [mkdir("NgiNx"), mkdir("CONSUL", [mkfile("cONFig.json")])]), mkfile("hOsts")], { test: "krest" });
 
-  const newMeta = _.cloneDeep(getMeta(directoty));
-  const newDirectory = mkdir(getName(directoty), newChildren, newMeta);
+const downcaseFileNames = (tree) => {
+  const name = getName(tree);
+  const newMeta = _.cloneDeep(getMeta(tree));
 
-  return newDirectory;
+  if (isFile(tree)) {
+    return mkfile(name.toLowerCase(), newMeta);
+  }
+
+  const children = getChildren(tree);
+  const newChildren = children.map(downcaseFileNames);
+  const newTree = mkdir(name, newChildren, newMeta);
+
+  return newTree;
 };
 
-const tree = mkdir("my documents", [
-  mkdir("documents.jpg"),
-  mkfile("avatar.jpg", { size: 100 }),
-  mkfile("passport.jpg", { size: 200 }),
-  mkfile("family.jpg", { size: 150 }),
-  mkfile("addresses", { size: 125 }),
-  mkdir("presentations"),
-]);
-
-const newTree = compressImages(tree);
-
-console.log(newTree);
-// console.log(JSON.stringify(newTree, null, " "));
+// console.log(nameOfConst(tree));
+console.log(JSON.stringify(downcaseFileNames(tree), null, " "));
