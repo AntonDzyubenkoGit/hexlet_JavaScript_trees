@@ -1,24 +1,29 @@
 import { mkfile, mkdir, getChildren, getMeta, getName, isFile, isDirectory } from "@hexlet/immutable-fs-trees";
 import _ from "lodash";
 
-// Функция downcaseFileNames (), которая принимает на вход директорию (объект-дерево), приводит имена всех файлов в этой и во всех вложенных директориях к нижнему регистру.
+// Функция getHiddenFilesCount(), которая считает количество скрытых файлов в директории и всех поддиректориях
 
-const tree = mkdir("/", [mkdir("eTc", [mkdir("NgiNx"), mkdir("CONSUL", [mkfile("cONFig.json")])]), mkfile("hOsts")], { test: "krest" });
+const tree = mkdir("f/", [
+  mkdir("etc", [
+    mkdir("apache"),
+    mkdir("nginx", [mkfile(".nginx.conf", { size: 800 })]),
+    mkdir(".consul", [mkfile(".config.json", { size: 1200 }), mkfile("data", { size: 8200 }), mkfile("raft", { size: 80 })]),
+  ]),
+  mkfile(".hosts", { size: 3500 }),
+  mkfile("resolve", { size: 1000 }),
+]);
 
-const downcaseFileNames = (tree) => {
-  const name = getName(tree);
-  const newMeta = _.cloneDeep(getMeta(tree));
-
-  if (isFile(tree)) {
-    return mkfile(name.toLowerCase(), newMeta);
+const getHiddenFilesCount = (node) => {
+  if (isFile(node)) {
+    const name = getName(node);
+    return _.startsWith(name, ".") ? 1 : 0;
   }
 
-  const children = getChildren(tree);
-  const newChildren = children.map(downcaseFileNames);
-  const newTree = mkdir(name, newChildren, newMeta);
-
-  return newTree;
+  const children = getChildren(node);
+  const count = children.map(getHiddenFilesCount);
+  return _.sum(count);
 };
 
-// console.log(nameOfConst(tree));
-console.log(JSON.stringify(downcaseFileNames(tree), null, " "));
+console.log(getHiddenFilesCount(tree));
+
+// console.log(JSON.stringify(getHiddenFilesCount(tree), null, " "));
