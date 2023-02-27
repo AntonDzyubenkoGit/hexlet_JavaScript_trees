@@ -1,0 +1,62 @@
+1. объявить имя элемента
+2. новые метаданные копируют старые
+3. добавляем владельца в метаданные
+
+если файл, то возвращает сделанный файл с именем и метаданными
+
+4. объявляем детей дерева
+5. обяъвляем новых детей дерева и мутируем их через мар и каждому вызываем текущую функцию
+6. формируем новое дерево
+7. возвращаем новое дерево
+
+=======================================================================================================
+
+const changeOwner = (tree, owner) => {
+ const name = getName(tree);
+ const newMeta = _.cloneDeep(getMeta(tree));
+ newMeta.owner = owner;
+
+ if(isFile(tree)){
+  return mkfile(name, newMeta)
+ }
+
+ const children = getChildren(tree);
+ const newChildren = children.map((child) => changeOwner(child, owner));
+ const newTree = mkdir(name, newChildren, newMeta);
+
+ return newTree;
+};
+
+=======================================================================================================
+
+const getNodesCount = (tree) => {
+  if (isFile(tree)) {
+    return 1;
+  }
+
+  const children = getChildren(tree);
+
+  const descendantCounts = children.map(getNodesCount);
+  return 1 + _.sum(descendantCounts);
+};
+
+
+=======================================================================================================
+const getFilesCount = (node) => {
+  if (isFile(node)) {
+    return 1;
+  }
+
+  const children = getChildren(node);
+  const descendantCounts = children.map(getFilesCount);
+  return _.sum(descendantCounts);
+};
+
+const getSubdirectoriesInfo = (tree) => {
+  const children = getChildren(tree);
+  const result = children.filter(isDirectory).map((child) => [getName(child), getFilesCount(child)]);
+
+  return result;
+};
+
+console.log(getSubdirectoriesInfo(tree));

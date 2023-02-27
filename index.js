@@ -1,29 +1,35 @@
 import { mkfile, mkdir, getChildren, getMeta, getName, isFile, isDirectory } from "@hexlet/immutable-fs-trees";
 import _ from "lodash";
 
-// Функция getHiddenFilesCount(), которая считает количество скрытых файлов в директории и всех поддиректориях
+// Функция du(), которая принимает на вход директорию и возвращает список вложенных узлов (директорий и файлов) в указанную директорию на один уровень, а так же место, которое они занимают
 
-const tree = mkdir("f/", [
+const tree = mkdir("/", [
   mkdir("etc", [
     mkdir("apache"),
-    mkdir("nginx", [mkfile(".nginx.conf", { size: 800 })]),
-    mkdir(".consul", [mkfile(".config.json", { size: 1200 }), mkfile("data", { size: 8200 }), mkfile("raft", { size: 80 })]),
+    mkdir("nginx", [mkfile("nginx.conf", { size: 800 })]),
+    mkdir("consul", [mkfile("config.json", { size: 1200 }), mkfile("data", { size: 8200 }), mkfile("raft", { size: 80 })]),
   ]),
-  mkfile(".hosts", { size: 3500 }),
+  mkfile("hosts", { size: 3500 }),
   mkfile("resolve", { size: 1000 }),
 ]);
 
-const getHiddenFilesCount = (node) => {
+const calculateFilesSize = (node) => {
   if (isFile(node)) {
-    const name = getName(node);
-    return _.startsWith(name, ".") ? 1 : 0;
+    const meta = getMeta(node);
+    return meta.size;
   }
 
   const children = getChildren(node);
-  const count = children.map(getHiddenFilesCount);
-  return _.sum(count);
+  const sizes = children.map(calculateFilesSize);
+
+  return _.sum(sizes);
 };
 
-console.log(getHiddenFilesCount(tree));
+const du = (node) => {
+  const children = getChildren(node);
+  const result = children.map((child) => [getName(child), calculateFilesSize(child)]);
 
-// console.log(JSON.stringify(getHiddenFilesCount(tree), null, " "));
+  return result.sort(([, size1], [, size2]) => size2 - size1);
+};
+
+console.log(du(tree));
