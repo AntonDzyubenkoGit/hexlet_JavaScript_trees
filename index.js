@@ -1,35 +1,31 @@
 import { mkfile, mkdir, getChildren, getMeta, getName, isFile, isDirectory } from "@hexlet/immutable-fs-trees";
+import treeData from './tree.js'
 import _ from "lodash";
 
-// Функция du(), которая принимает на вход директорию и возвращает список вложенных узлов (директорий и файлов) в указанную директорию на один уровень, а так же место, которое они занимают
+// Функция changeClass(), которая принимает на вход html-дерево и заменяет во всех узлах имя класса, имена классов передаются через параметры
 
-const tree = mkdir("/", [
-  mkdir("etc", [
-    mkdir("apache"),
-    mkdir("nginx", [mkfile("nginx.conf", { size: 800 })]),
-    mkdir("consul", [mkfile("config.json", { size: 1200 }), mkfile("data", { size: 8200 }), mkfile("raft", { size: 80 })]),
-  ]),
-  mkfile("hosts", { size: 3500 }),
-  mkfile("resolve", { size: 1000 }),
-]);
+const changeClass = (tree, classNameFrom, classNameTo) => {
+  const innerFunc = (node) => {
+    const updatedNode = { ...node };
 
-const calculateFilesSize = (node) => {
-  if (isFile(node)) {
-    const meta = getMeta(node);
-    return meta.size;
-  }
+    if (_.has(node, 'className')) {
+      const newClassName = classNameFrom === node.className ? classNameTo : node.className;
+      updatedNode.className = newClassName;
+    }
 
-  const children = getChildren(node);
-  const sizes = children.map(calculateFilesSize);
+    if (node.type === 'tag-internal') {
+      const newChildren = node.children.map(innerFunc);
+      updatedNode.children = newChildren;
+    }
 
-  return _.sum(sizes);
+    return updatedNode;
+  };
+
+  return innerFunc(tree);
 };
 
-const du = (node) => {
-  const children = getChildren(node);
-  const result = children.map((child) => [getName(child), calculateFilesSize(child)]);
 
-  return result.sort(([, size1], [, size2]) => size2 - size1);
-};
+const result = changeClass(treeData.htmlTreeSource, 'hexlet-community', '!!!!!=====!!!!!');
 
-console.log(du(tree));
+console.log(result);
+// console.log(JSON.stringify(result, null, ' '))
